@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ready-probe
+  labels:
+    app: cassandra
+  namespace: backend
+data:
+  ready-probe.sh: |
+    #!/bin/bash
+
+    if [[ $(nodetool status | grep $POD_IP) == *"UN"* ]]; then
+      echo "UN" > /proc/1/fd/1
+    else
+      echo "Not Up" > /proc/1/fd/1
+      exit 1
+    fi

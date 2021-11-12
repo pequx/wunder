@@ -7,9 +7,10 @@ metadata:
   namespace: backend
 spec:
   selector:
-    app: cassandra
+    matchLabels:
+      app: cassandra
   storageClassName: fast
   resources:
     requests:
       storage: 1Gi
-  accesModes: [ "ReadWriteOnce" ]
+  accessModes: [ "ReadWriteOnce" ]

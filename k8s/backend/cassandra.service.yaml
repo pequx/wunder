@@ -6,8 +6,8 @@ metadata:
     app: cassandra
   namespace: backend
 spec:
+  selector:
+    app: cassandra 
   clusterIP: None
   ports:
-  - port: 9042
-  selector:
-    app: cassandra
+    - port: 9042

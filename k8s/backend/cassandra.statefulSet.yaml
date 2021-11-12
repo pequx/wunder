@@ -16,10 +16,10 @@ spec:
       labels:
         app: cassandra
     spec:
-      termiantionGracePeriodSeconds: 1800
+      terminationGracePeriodSeconds: 1800
       containers:
         - name: cassandra
-          image: cassandra:3.11
+          image: cassandra:4.0.1
           imagePullPolicy: Always
           ports:
             - containerPort: 7000
@@ -68,6 +68,10 @@ spec:
           volumeMounts:
             - name: cassandra
               mountPath: /cassandra_data
+            - name: ready-probe
+              mountPath: /ready-probe.sh
+              subPath: ready-probe.sh
+              readOnly: true
           resources:
             limits:
               cpu: 500m
@@ -77,30 +81,41 @@ spec:
               memory: 1Gi
           lifecycle:
             preStop:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - nodetool drain
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - nodetool drain
           readinessProbe:
             exec:
               command:
                 - /bin/bash
                 - -c
                 - /ready-probe.sh
-            initialDelaySeconds: 15
-            timeoutSeconds: 5
+            initialDelaySeconds: 90
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 30
+            failureThreshold: 3
           securityContext:
             capabilities:
               add:
                 - IPC_LOCK
           stdin: true
-  # volumeClaimTemplates:
-  #   - metadata:
-  #       name: data
-  #     spec:
-  #       accesModes: ["ReadWriteOnce"]
-  #       storageClassName: fast
-  #       resources:
-  #         requests:
-  #           storage: 1Gi
+      volumes:
+        - name: ready-probe
+          configMap:
+            name: ready-probe
+            defaultMode: 0777
+      serviceAccountName: cassandra
+      automountServiceAccountToken: true
+  volumeClaimTemplates:
+    - metadata:
+        name: cassandra
+        namespace: backend
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: fast
+        resources:
+          requests:
+            storage: 1Gi
