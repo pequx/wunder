@@ -16,7 +16,7 @@ spec:
       labels:
         app: cassandra
     spec:
-      terminationGracePeriodSeconds: 1800
+      # terminationGracePeriodSeconds: 60
       containers:
         - name: cassandra
           image: cassandra:4.0.1
@@ -75,10 +75,10 @@ spec:
           resources:
             limits:
               cpu: 500m
-              memory: 1Gi
+              memory: 2Gi
             requests:
               cpu: 500m
-              memory: 1Gi
+              memory: 2Gi
           lifecycle:
             preStop:
               exec:
@@ -96,7 +96,7 @@ spec:
             periodSeconds: 15
             successThreshold: 1
             timeoutSeconds: 30
-            failureThreshold: 3
+            failureThreshold: 5
           securityContext:
             capabilities:
               add:

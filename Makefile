@@ -81,22 +81,28 @@ cassandra-deployment-clean:
 ### KAIROSDB
 
 kairosdb-config:
-	$(KUBI_BACKEND) apply -f ./k8s/kairosdb.configMap.yaml
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.configMap.yaml
 
 kairosdb-config-clean:
-	$(KUBI_BACKEND) delete -f ./k8s/kairosdb.configMap.yaml
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.configMap.yaml
+
+kairosdb-account:
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.serviceAccount.yaml
+
+kairosdb-account-clean:
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.serviceAccount.yaml
 
 kairosdb-service:
-	$(KUBI_BACKEND) apply -f ./k8s/kairosdb.service.yaml
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.service.yaml
 
 kairosdb-service-clean:
-	$(KUBI_BACKEND) delete -f ./k8s/kairosdb.service.yaml
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.service.yaml
 
 kairosdb-deployment:
-	$(KUBI_BACKEND) apply -f ./k8s/kairosdb.deployment.yaml
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.deployment.yaml
 
 kairosdb-deployment-clean:
-	$(KUBI_BACKEND) delete -f ./k8s/kairosdb.deployment.yaml
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.deployment.yaml
 
 
 ### GRAFANA
@@ -107,20 +113,26 @@ grafana-secret:
 grafana-secret-clean:
 	$(KUBI_BACKEND) delete secret $(SECRET_GRAFANA)
 
+grafana-account:
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.serviceAccount.yaml
+
+grafana-account-clean:
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.serviceAccount.yaml
+
 grafana-volume:
-	$(KUBI_BACKEND) apply -f ./k8s/grafana.persistentVolumeClaim.yaml
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.persistentVolumeClaim.yaml
 
 grafana-volume-clean:
-	$(KUBI_BACKEND) delete -f ./k8s/grafana.persistentVolumeClaim.yaml
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.persistentVolumeClaim.yaml
 
 grafana-service:
-	$(KUBI_BACKEND) apply -f ./k8s/grafana.service.yaml
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.service.yaml
 
 grafana-service-clean:
-	$(KUBI_BACKEND) delete -f ./k8s/grafana.service.yaml
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.service.yaml
 
 grafana-deployment:
-	$(KUBI_BACKEND) apply -f ./k8s/grafana.deployment.yaml
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.deployment.yaml
 
 grafana-deployment-clean:
-	$(KUBI_BACKEND) delete -f ./k8s/grafana.deployment.yaml
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.deployment.yaml
