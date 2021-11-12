@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name:  cassandra
+  labels:
+    app: cassandra
+  namespace: backend
+spec:
+  clusterIP: None
+  ports:
+  - port: 9042
+  selector:
+    app: cassandra

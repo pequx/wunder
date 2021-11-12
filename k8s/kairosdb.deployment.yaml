@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kariosdb
+  labels:
+    app: kairosdb
+  namespace: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kariosdb
+  template:
+    metadata:
+      labels:
+        app: kairosdb
+    spec:
+      initContainers:
+        - name: wait
+          image: rcosnita/wait-container:1.0.0
+          imagePullPolicy: IfNotPresent
+          args: [ "/etc/config/config.json" ]
+          volumeMounts:
+            - name: wait
+              mountPath: /etc/config
+      containers:
+        - name: kairosdb
+          image: rcosnita/kairosdb:1.3.0-3283c4e8d4d
+          imagePullPolicy: IfNotPresent
+          command: [ "bash" ]
+          args:
+            - "-c"
+            - "cp -f /etc/kairosdb/custom-configs/*.conf /etc/kairosdb && . ~/.bashrc && kairosdb.sh run"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: CASSANDRA_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cassandra
+                  key: CASSANDRA_USER
+            - name: CASSANDRA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cassandra
+                  key: CASSANDRA_PASSWORD
+          volumeMounts:
+            - name: config
+              mountPath: /etc/kairosdb/custom-configs
+          resources:
+            limits:
+              cpu: 1
+              memory: 265Mi
+            requestes:
+              cpu: 1
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+      volumes:
+        - name: wait
+          configMap:
+            name: wait
+        - name: config
+          configMap:
+            name: kairosdb
+            items:
+            - key: kairosdb.conf
+              path: kairosdb.conf
+            

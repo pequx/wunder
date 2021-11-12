@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cassandra
+  labels:
+    app: cassandra
+  namespace: backend
+spec:
+  serviceName: cassandra
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cassandra
+  template:
+    metadata:
+      labels:
+        app: cassandra
+    spec:
+      termiantionGracePeriodSeconds: 1800
+      containers:
+        - name: cassandra
+          image: cassandra:3.11
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 7000
+              name: intra-node
+            - containerPort: 7001
+              name: tls-intra-node
+            - containerPort: 7199
+              name: jmx
+            - containerPort: 9042
+              name: cql
+          env:
+            - name: MAX_HEAP_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra
+                  key: MAX_HEAP_SIZE
+            - name: HEAP_NEWSIZE
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra
+                  key: HEAP_NEWSIZE
+            - name: CASSANDRA_SEEDS
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra
+                  key: CASSANDRA_SEEDS
+            - name: CASSANDRA_CLUSTER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra
+                  key: CASSANDRA_CLUSTER_NAME
+            - name: CASSANDRA_DC
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra
+                  key: CASSANDRA_DC
+            - name: CASSANDRA_RACK
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra
+                  key: CASSANDRA_RACK
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          volumeMounts:
+            - name: cassandra
+              mountPath: /cassandra_data
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+          lifecycle:
+            preStop:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - nodetool drain
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - /ready-probe.sh
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+          securityContext:
+            capabilities:
+              add:
+                - IPC_LOCK
+          stdin: true
+  # volumeClaimTemplates:
+  #   - metadata:
+  #       name: data
+  #     spec:
+  #       accesModes: ["ReadWriteOnce"]
+  #       storageClassName: fast
+  #       resources:
+  #         requests:
+  #           storage: 1Gi

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra
+  labels:
+    app: cassandra
+  namespace: backend
+spec:
+  selector:
+    app: cassandra
+  storageClassName: fast
+  resources:
+    requests:
+      storage: 1Gi
+  accesModes: [ "ReadWriteOnce" ]

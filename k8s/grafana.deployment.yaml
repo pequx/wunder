@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grafana
+  name: grafana
+  namespace: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:8.2.3
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c"]
+          args:
+            - |
+              grafana-cli plugins install grafana-kairosdb-datasource
+              run.sh
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          env:
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grafana
+                  key: GF_SECURITY_ADMIN_PASSWORD
+          volumeMounts:
+            - mountPath: /var/lib/grafana
+              name: grafana
+            # - mountPath: /etc/grafana
+            #   name: config
+          resources:
+            limits:
+              memory: 750Mi
+              cpu: 250m
+            requests:
+              memory: 750Mi
+              cpus: 250m
+          livenessProbe:
+            tcpSocket:
+              port: 300
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              port: 3000
+              path: /robots.txt
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 2
+            failureThreshold: 3
+      volumes:
+        - name: grafana
+          persistentVolumeClaim:
+            claimName: grafana
+        # - name: config
+        #   configMap:
+        #     name: config
+      restartPolicy: OnFailure
+      securityContext:
+        fsGroup: 427
+        supplementalGroups:
+          - 0
+      stdin: true
+      
