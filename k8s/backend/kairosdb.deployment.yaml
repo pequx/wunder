@@ -53,17 +53,22 @@ spec:
               cpu: 250m
               memory: 1Gi
             requests:
-              cpu: 250m
-              memory: 1Gi
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
+              cpu: 125m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /
               port: http
-            initialDelaySeconds: 60
+            initialDelaySeconds: 120
             periodSeconds: 15
             successThreshold: 1
             timeoutSeconds: 15

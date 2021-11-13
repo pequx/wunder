@@ -41,6 +41,16 @@ spec:
                 configMapKeyRef:
                   name: cassandra
                   key: HEAP_NEWSIZE
+            - name: JVM_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra
+                  key: JVM_OPTS
+            - name: MALLOC_ARENA_MAX
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra
+                  key: MALLOC_ARENA_MAX
             - name: CASSANDRA_SEEDS
               valueFrom:
                 configMapKeyRef:
@@ -66,20 +76,32 @@ spec:
                 fieldRef:
                   fieldPath: status.podIP
           volumeMounts:
-            - name: cassandra
-              mountPath: /cassandra_data
+            - name: data
+              mountPath: /opt/cassandra/data
+            - name: logs
+              mountPath: /opt/cassandra/logs
             - name: ready-probe
               mountPath: /ready-probe.sh
               subPath: ready-probe.sh
               readOnly: true
+            - name: env
+              mountPath: /env.sh
+              subPath: env.sh
+              readOnly: true
           resources:
             limits:
               cpu: 500m
-              memory: 2Gi
+              memory: 6Gi
             requests:
-              cpu: 500m
-              memory: 2Gi
+              cpu: 250m
+              memory: 3Gi
           lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/bash
+                  - -c
+                  - ./env.sh
             preStop:
               exec:
                 command:
@@ -89,10 +111,10 @@ spec:
           readinessProbe:
             exec:
               command:
-                - /bin/bash
+                - /bin/sh
                 - -c
                 - /ready-probe.sh
-            initialDelaySeconds: 90
+            initialDelaySeconds: 120
             periodSeconds: 15
             successThreshold: 1
             timeoutSeconds: 30
@@ -107,15 +129,32 @@ spec:
           configMap:
             name: ready-probe
             defaultMode: 0777
+        - name: env
+          configMap:
+            name: env
+            defaultMode: 0777
       serviceAccountName: cassandra
       automountServiceAccountToken: true
   volumeClaimTemplates:
     - metadata:
-        name: cassandra
+        name: data
         namespace: backend
+        labels:
+          app: cassandra
       spec:
         accessModes: [ "ReadWriteOnce" ]
         storageClassName: fast
         resources:
           requests:
             storage: 1Gi
+    - metadata:
+        name: logs
+        namespace: backend
+        labels:
+          app: cassandra
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 512Mi
+

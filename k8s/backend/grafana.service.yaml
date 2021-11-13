@@ -11,6 +11,7 @@ spec:
   type: LoadBalancer
   sessionAffinity: None
   ports:
-    - port: 3000
+    - name: http
+      port: 3000
       targetPort: http
       protocol: TCP

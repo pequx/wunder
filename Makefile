@@ -77,6 +77,22 @@ cassandra-deployment:
 cassandra-deployment-clean:
 	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/cassandra.statefulSet.yaml
 
+cassandra:
+	make cassandra-secret
+	make cassandra-account
+	make cassandra-config
+	make cassandra-storage
+	make cassandra-service
+	make cassandra-deployment
+
+cassandra-clean:
+	make cassandra-secret-clean
+	make cassandra-account-clean
+	make cassandra-config-clean
+	make cassandra-storage-clean
+	make cassandra-service-clean
+	make cassandra-deployment-clean
+
 
 ### KAIROSDB
 
@@ -104,6 +120,18 @@ kairosdb-deployment:
 kairosdb-deployment-clean:
 	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.deployment.yaml
 
+kairosdb:
+	make kairosdb-config
+	make kairosdb-account
+	make kairosdb-service
+	make kairosdb-deployment
+
+kairosdb-clean:
+	make kairosdb-config-clean
+	make kairosdb-account-clean
+	make kairosdb-service-clean
+	make kairosdb-deployment-clean
+
 
 ### GRAFANA
 
@@ -119,20 +147,34 @@ grafana-account:
 grafana-account-clean:
 	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.serviceAccount.yaml
 
-grafana-volume:
-	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.persistentVolumeClaim.yaml
-
-grafana-volume-clean:
-	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.persistentVolumeClaim.yaml
-
 grafana-service:
 	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.service.yaml
 
 grafana-service-clean:
 	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.service.yaml
 
+grafana-volume:
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.persistentVolumeClaim.yaml
+
+grafana-volume-clean:
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.persistentVolumeClaim.yaml
+
 grafana-deployment:
 	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.deployment.yaml
 
 grafana-deployment-clean:
 	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.deployment.yaml
+
+grafana:
+	make grafana-secret
+	make grafana-account
+	make grafana-service
+	make grafana-volume
+	make grafana-deployment
+
+grafana-clean:
+	make grafana-secret-clean
+	make grafana-account-clean
+	make grafana-service-clean
+	# make grafana-volume-clean
+	make grafana-deployment-clean

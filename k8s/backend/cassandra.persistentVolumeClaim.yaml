@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cassandra
+  name: cassandra-data
   labels:
     app: cassandra
   namespace: backend
@@ -13,4 +13,21 @@ spec:
   resources:
     requests:
       storage: 1Gi
+  accessModes: [ "ReadWriteOnce" ]
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra-logs
+  labels:
+    app: cassandra
+  namespace: backend
+spec:
+  selector:
+    matchLabels:
+      app: cassandra
+  resources:
+    requests:
+      storage: 512Mi
   accessModes: [ "ReadWriteOnce" ]
