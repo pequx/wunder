@@ -1,8 +1,7 @@
 import os
-import json
 
-from types import SimpleNamespace
 from decouple import config
+
 
 ENVRION = os.environ.get("HUNDI_ENVIRON", config(
     "HUNDI_ENVIRON", default="development")
@@ -22,12 +21,3 @@ KAIROSDB_TTL = int(
         "KAIROSDB_TTL", default=15 * 365 * 24 * 60 * 60)
     )
 )
-
-
-def process_json(self, file):
-    return json.loads(
-        open(file).buffer, object_hook=lambda d: SimpleNamespace(**d)
-    )
-
-
-TICKER = process_json('config/ticker.json')
