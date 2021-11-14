@@ -51,10 +51,10 @@ spec:
           resources:
             limits:
               cpu: 250m
-              memory: 1Gi
+              memory: 2Gi
             requests:
               cpu: 125m
-              memory: 512Mi
+              memory: 1Gi
           livenessProbe:
             httpGet:
               path: /
@@ -73,6 +73,7 @@ spec:
             successThreshold: 1
             timeoutSeconds: 15
             failureThreshold: 5
+          stdin: true
       volumes:
         # - name: wait
         #   configMap:

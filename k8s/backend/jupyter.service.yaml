@@ -4,13 +4,14 @@ metadata:
   name: jupyter
   labels: 
     app: jupyter
-  namespace: frontend
+  namespace: backend
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: jupyter
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       nodePort: 30040
       port: 8888
-      targetPort: 8888
+      targetPort: http

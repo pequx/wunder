@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyter
+  labels:
+    app: jupyter
+  namespace: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyter
+  template:
+    metadata:
+      labels:
+        app: jupyter
+    spec:
+      containers:
+        - name: jupyter
+          image: jupyter/minimal-notebook:lab-3.2.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8888
+              protocol: TCP
+          command: [ "start-notebook.sh" ]
+          args: 
+            - "--ServerApp.autoreload=$(JUPYTER_AUTO_RELOAD)"
+          env:
+            - name: JUPYTER_ENABLE_LAB
+              valueFrom:
+                configMapKeyRef:
+                  name: jupyter
+                  key: JUPYTER_ENABLE_LAB
+            - name: JUPYTER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: jupyter
+                  key: JUPYTER_TOKEN
+            - name: JUPYTER_AUTO_RELOAD
+              valueFrom:
+                configMapKeyRef:
+                  name: jupyter
+                  key: JUPYTER_AUTO_RELOAD
+          volumeMounts:
+            - name: data
+              mountPath: /home/jovyan
+          resources:
+            limits:
+              cpu: 125m
+              memory: 2Gi
+            requests:
+              cpu: 62m
+              memory: 1Gi
+          stdin: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: jupyter          
+      serviceAccountName: jupyter
+      # securityContext:
+      #   runAsUser: 100
+      #   runAsGroup: 100
+      automountServiceAccountToken: true

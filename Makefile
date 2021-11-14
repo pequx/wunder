@@ -1,15 +1,22 @@
 CONFIG_CASSANDRA ?= cassandra
+CONFIG_JUPYTER ?= jupyter
 
 SECRET_CASSANDRA ?= cassandra
 SECRET_GRAFANA ?= grafana
+SECRET_JUPYTER ?= jupyter
 
 ENV_CASSANDRA := "./.cassandra.env"
+ENV_JUPYTER := "./.jupyter.env"
+
 ENV_SECRET_CASSANDRA := "./.secret.cassandra.env"
 ENV_SECRET_GRAFANA := "./.secret.grafana.env"
+ENV_SECRET_JUPYTER := "./.secret.jupyter.env"
 
 NAMESPACE_BACKEND ?= backend
+NAMESPACE_FRONTEND ?= frontend
 
 KUBI_BACKEND := kubectl --namespace $(NAMESPACE_BACKEND)
+KUBI_FRONTEND := kubectl --namespace $(NAMESPACE_FRONTEND)
 
 bootstrap-venv:
 	virtualenv -p `which python3.10` venv
@@ -24,11 +31,18 @@ clean-build:
 
 
 ## BACKEND
+
 backend-namespace:
-	$(KUBI_BACKEND) create namespace $(NAMESPACE_BACKEND) 
+	kubectl create namespace $(NAMESPACE_BACKEND) 
 
 backend-namespace-clean:
-	$(KUBI_BACKEND) delete namespace $(NAMESPACE_BACKEND) 
+	kubectl delete namespace $(NAMESPACE_BACKEND) 
+
+frontend-namespace:
+	kubectl create namespace $(NAMESPACE_FRONTEND) 
+
+frontend-namespace-clean:
+	kubectl delete namespace $(NAMESPACE_FRONTEND) 
 
 
 ### CASANDRA
@@ -178,3 +192,57 @@ grafana-clean:
 	make grafana-service-clean
 	# make grafana-volume-clean
 	make grafana-deployment-clean
+
+
+### JUPYTER
+
+jupyter-secret:
+	$(KUBI_BACKEND) create secret generic $(SECRET_JUPYTER) --from-env-file=$(ENV_SECRET_JUPYTER)
+
+jupyter-secret-clean:
+	$(KUBI_BACKEND) delete secret $(SECRET_JUPYTER)
+
+jupyter-config:
+	$(KUBI_BACKEND) create configmap $(CONFIG_JUPYTER) --from-env-file=$(ENV_JUPYTER)
+
+jupyter-config-clean:
+	$(KUBI_BACKEND) delete configmap $(CONFIG_JUPYTER)
+
+jupyter-account:
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/jupyter.serviceAccount.yaml
+
+jupyter-account-clean:
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/jupyter.serviceAccount.yaml
+
+jupyter-service:
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/jupyter.service.yaml
+
+jupyter-service-clean:
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/jupyter.service.yaml
+
+jupyter-deployment:
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/jupyter.deployment.yaml
+
+jupyter-deployment-clean:
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/jupyter.deployment.yaml
+
+jupyter-volume:
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/jupyter.volume.yaml
+
+jupyter-volume-clean:
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/jupyter.volume.yaml
+
+jupyter:
+	make jupyter-secret
+	make jupyter-config
+	make jupyter-account
+	make jupyter-service
+	make jupyter-volume
+	make jupyter-deployment
+
+jupyter-clean:
+	make jupyter-secret-clean
+	make jupyter-config-clean
+	make jupyter-account-clean
+	make jupyter-service-clean
+	make jupyter-deployment-clean
