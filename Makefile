@@ -18,8 +18,6 @@ NAMESPACE_FRONTEND ?= frontend
 KUBI_BACKEND := kubectl --namespace $(NAMESPACE_BACKEND)
 KUBI_FRONTEND := kubectl --namespace $(NAMESPACE_FRONTEND)
 
-bootstrap-venv:
-	virtualenv -p `which python3.10` venv
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} \;
@@ -54,10 +52,10 @@ cassandra-secret-clean:
 	$(KUBI_BACKEND) delete secret $(SECRET_CASSANDRA)
 
 cassandra-account:
-	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/cassandra.serviceAccount.yaml
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/cassandra.account.yaml
 
 cassandra-account-clean:
-	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/cassandra.serviceAccount.yaml
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/cassandra.account.yaml
 
 cassandra-config:
 	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/cassandra.configMap.yaml
@@ -74,10 +72,10 @@ cassandra-storage-clean:
 	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/cassandra.storageClass.yaml
 
 # cassandra-volume:
-# 	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/cassandra.persistentVolumeClaim.yaml
+# 	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/cassandra.volume.yaml
 
 # cassandra-volume-clean:
-# 	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/cassandra.persistentVolumeClaim.yaml
+# 	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/cassandra.volume.yaml
 
 cassandra-service:
 	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/cassandra.service.yaml
@@ -117,10 +115,10 @@ kairosdb-config-clean:
 	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.configMap.yaml
 
 kairosdb-account:
-	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.serviceAccount.yaml
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.account.yaml
 
 kairosdb-account-clean:
-	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.serviceAccount.yaml
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.account.yaml
 
 kairosdb-service:
 	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/kairosdb.service.yaml
@@ -156,10 +154,10 @@ grafana-secret-clean:
 	$(KUBI_BACKEND) delete secret $(SECRET_GRAFANA)
 
 grafana-account:
-	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.serviceAccount.yaml
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.account.yaml
 
 grafana-account-clean:
-	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.serviceAccount.yaml
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.account.yaml
 
 grafana-service:
 	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.service.yaml
@@ -168,10 +166,10 @@ grafana-service-clean:
 	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.service.yaml
 
 grafana-volume:
-	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.persistentVolumeClaim.yaml
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.volume.yaml
 
 grafana-volume-clean:
-	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.persistentVolumeClaim.yaml
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/grafana.volume.yaml
 
 grafana-deployment:
 	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/grafana.deployment.yaml
@@ -209,10 +207,10 @@ jupyter-config-clean:
 	$(KUBI_BACKEND) delete configmap $(CONFIG_JUPYTER)
 
 jupyter-account:
-	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/jupyter.serviceAccount.yaml
+	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/jupyter.account.yaml
 
 jupyter-account-clean:
-	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/jupyter.serviceAccount.yaml
+	$(KUBI_BACKEND) delete -f ./k8s/${NAMESPACE_BACKEND}/jupyter.account.yaml
 
 jupyter-service:
 	$(KUBI_BACKEND) apply -f ./k8s/${NAMESPACE_BACKEND}/jupyter.service.yaml

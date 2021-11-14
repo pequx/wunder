@@ -1,0 +1,71 @@
+{
+    "COLUMNS": {
+        "SPOT": ["channelID", "points", "channelName", "pair"]
+    },
+    "DEFAULT_COLUMNS": {
+        "SPOT": ["b", "a", "bs", "as", "v"],
+        "FUTURES": ["b", "a", "bs", "as", "v"]      
+    },
+    "COLUMN_MAPPING": {
+        "SPOT": {
+            "bid": "b",
+            "ask": "a",
+            "bid_size": "bs",
+            "ask_size": "as",
+            "volume": "v"
+        },
+        "FUTURES": {
+            "bid": "b",
+            "ask": "a",
+            "bid_size": "bs",
+            "ask_size": "as",
+            "volume": "v"
+        }
+    },
+    "KAIROSDB_START_RELATIVE": 1,
+    "KAIROSDB_END_RELATIVE": 0,
+    "KAIROSDB_CACHE_TIME": 300,
+    "KAIROSDB_BUFFER_SIZE": 100,
+    "OHLC_COLUMNS": {
+        "SPOT": ["time", "etime", "open", "high", "low", "close", "vwap", "volume", "count"]
+    },
+    "DATAFRAME_TIME_UNIT": "minutes",
+    "AGGREGATOR_TIME_UNIT": "minutes",
+    "AGGREGATORS": {
+        "MAX": {
+            "MILLISECONDS": [
+                {"name": "max", "sampling": {"value": "1", "unit": "milliseconds"}}
+            ],
+            "SECONDS": [
+                {"name": "max", "sampling": {"value": "1", "unit": "seconds"}}
+            ],
+            "MINUTES": [
+                {"name": "max", "sampling": {"value": "1", "unit": "minutes"}}
+            ],
+            "HOURS": [
+                {"name": "max", "sampling": {"value": "1", "unit": "hours"}}
+            ]
+        },
+        "AVG": {
+            "MILLISECONDS": [
+                {"name": "avg", "sampling": {"value": "1", "unit": "milliseconds"}}
+            ],
+            "SECONDS": [
+                {"name": "avg", "sampling": {"value": "1", "unit": "seconds"}}
+            ],
+            "MINUTES": [
+                {"name": "avg", "sampling": {"value": "1", "unit": "minutes"}}
+            ],
+            "HOURS": [
+                {"name": "avg", "sampling": {"value": "1", "unit": "hours"}}
+            ]
+        },
+        "LAST": [
+            {
+                "name": "last",
+                "sampling": {"value": "1", "unit": "years"},
+                "align_end_time": "True"
+            }
+        ]
+    }
+}
