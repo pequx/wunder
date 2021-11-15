@@ -1,7 +1,18 @@
 {
+    "python.formatting.autopep8Path": "./backend/hundi/venv/bin/autopep8",
+    "python.formatting.provider": "autopep8",
+    "python.defaultInterpreterPath": "./backend/hundi/venv/bin/python3.9",
+    "python.pythonPath": "./backend/hundi/venv/bin/python3.9",
+    "python.linting.cwd": "./backend/hundi",
+    "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": true,
-    "python.linting.enabled": true,
-    "python.pythonPath": "src/hundi/venv/bin/python3.9",
-    "jupyter.jupyterServerType": "remote"
+    "python.linting.flake8Path": "./backend/hundi/venv/bin/flake8",
+    "python.testing.cwd": "./backend/hundi",
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestPath": "./backend/hundi/venv/bin/pytest",
+    "jupyter.jupyterServerType": "remote",
+    "editor.autoIndent": "full",
+    "editor.formatOnSave": true,
+    "editor.formatOnType": false
 }
