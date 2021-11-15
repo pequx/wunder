@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 
-from hundi.lib import kairosdb
+from hundi.lib.kairosdb import order as kairosdb
 # from hundi.config.message import (
 #     ORDER_ASKS_BUFFER_SIZE,
 #     ORDER_BIDS_BUFFER_SIZE,

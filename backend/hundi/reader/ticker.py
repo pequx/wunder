@@ -1,11 +1,11 @@
 import logging
 from abc import ABC, abstractmethod
 
-from hundi.lib.kairosdb import ticker
-from hundi.config.ticker import (
-    TICKER_WRITTEN,
-    TICKERS_WRITTEN_COUNT,
-)
+from hundi.lib.kairosdb import ticker as kairosdb
+# from hundi.config.ticker import (
+#     TICKER_WRITTEN,
+#     TICKERS_WRITTEN_COUNT,
+# )
 
 logger = logging.getLogger(__name__)
 
@@ -25,13 +25,13 @@ class KairosDBTickerReader(TickerReader):
         pass
 
     def read(self, key):
-        response = ticker.get_tickers_as_dataframe(
+        response = kairosdb.get_tickers_as_dataframe(
             self.type, self.exchange, self.market_type, key
         )
         return response
 
     def read_last(self, key):
-        response = ticker.get_tickers_as_dataframe(
+        response = kairosdb.get_tickers_as_dataframe(
             type=self.type,
             exchange=self.exchange,
             market_type=self.market_type,
