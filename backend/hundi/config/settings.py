@@ -3,12 +3,12 @@ import os
 from decouple import config
 
 
-ENVRION = os.environ.get("HUNDI_ENVIRON", config(
+ENVIRONMENT = os.environ.get("HUNDI_ENVIRON", config(
     "HUNDI_ENVIRON", default="development")
 )
 
-DEVELOPMENT = True if ENVRION == "development" else False
-PRODUCTION = True if ENVRION == "production" else False
+DEVELOPMENT = True if ENVIRONMENT == "development" else False
+PRODUCTION = True if ENVIRONMENT == "production" else False
 DEBUG = os.environ.get("HUNDI_DEBUG", config("HUNDI_DEBUG", default=False))
 
 KAIROSDB_URL = os.environ.get("KAIROSDB_URL", config(
@@ -21,3 +21,4 @@ KAIROSDB_TTL = int(
         "KAIROSDB_TTL", default=15 * 365 * 24 * 60 * 60)
     )
 )
+

@@ -6,6 +6,15 @@ CANDLE_COLUMN_MAPPING = {
     "close": "c",
     "volume": "v",
 }
+CANDLE_SLOTS = [
+    "timestamp",
+    "period",
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume"
+]
 CANDLE_TIME_UNIT = "minutes"
 CANDLE_START_RELATIVE = 5
 CANDLE_END_RELATIVE = 0

@@ -1,6 +1,6 @@
 import collections
 
-from hundi.config.candle import CANDLE_PERIODS
+from hundi.config.candle import (CANDLE_PERIODS, CANDLE_SLOTS)
 
 CandleTuple = collections.namedtuple(
     "Candle", "timestamp period open high low close volume"
@@ -48,9 +48,7 @@ class CandlePeriod(object):
 
 
 class Candle(object):
-    __slots__ = [
-        "timestamp", "period", "open", "high", "low", "close", "volume"
-    ]
+    __slots__ = CANDLE_SLOTS
 
     def __init__(
         self,

@@ -2,13 +2,13 @@ import logging
 from abc import ABC, abstractmethod
 
 from hundi.lib import kairosdb
-from hundi.config.message import (
-    ORDER_ASKS_BUFFER_SIZE,
-    ORDER_BIDS_BUFFER_SIZE,
-    ORDER_WRITTEN,
-    ORDERS_WRITTEN_COUNT,
-    UNKNOWN_ORDER_SIDE,
-)
+# from hundi.config.message import (
+#     ORDER_ASKS_BUFFER_SIZE,
+#     ORDER_BIDS_BUFFER_SIZE,
+#     ORDER_WRITTEN,
+#     ORDERS_WRITTEN_COUNT,
+#     UNKNOWN_ORDER_SIDE,
+# )
 
 # from hundi.market.data.models.order import Order as Entry
 

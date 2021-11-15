@@ -1,0 +1,1 @@
+METRIC_CRYPTO = "hundi.{}.crypto.{}.{}.{}"

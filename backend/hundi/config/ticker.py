@@ -19,6 +19,11 @@ TICKER_COLUMN_MAPPING = {
         "volume": "v",
     },
 }
+TICKER_SLOTS = {
+    "SPOT": ["timestamp", "open", "high", "low", "close", "volume"],
+    "FUTURES": ["timestamp", "bid", "ask", "bid_size", "ask_size", "volume"],
+    "FTX": ["timestamp", "bid", "ask", "bid_size", "ask_size"]
+}
 TICKER_START_RELATIVE = 1
 TICKER_END_RELATIVE = 0
 TICKER_CACHE_TIME = 300
