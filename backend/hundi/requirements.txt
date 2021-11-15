@@ -5,3 +5,4 @@ click==8.0.3
 requests==2.26.0
 matplotlib==3.4.3
 mplfinance==0.12.7a17
+websocket==0.2.1

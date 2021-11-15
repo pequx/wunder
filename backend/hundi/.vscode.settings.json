@@ -2,7 +2,7 @@
     "python.formatting.autopep8Path": "./backend/hundi/venv/bin/autopep8",
     "python.formatting.provider": "autopep8",
     "python.defaultInterpreterPath": "./backend/hundi/venv/bin/python3.9",
-    "python.pythonPath": "./backend/hundi/venv/bin/python3.9",
+    "python.pythonPath": "backend/hundi/venv/bin/python3.9",
     "python.linting.cwd": "./backend/hundi",
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
@@ -10,9 +10,23 @@
     "python.linting.flake8Path": "./backend/hundi/venv/bin/flake8",
     "python.testing.cwd": "./backend/hundi",
     "python.testing.pytestEnabled": true,
+    "python.sortImports.args": [
+        "-rc",
+        "--atomic"
+    ],
     "python.testing.pytestPath": "./backend/hundi/venv/bin/pytest",
     "jupyter.jupyterServerType": "remote",
     "editor.autoIndent": "full",
     "editor.formatOnSave": true,
-    "editor.formatOnType": false
+    "editor.formatOnType": false,
+    "python.linting.lintOnSave": false,
+    "editor.formatOnSaveMode": "file",
+    "python.formatting.autopep8Args": [
+        "--max-line-length",
+        "120",
+        "--aggressive",
+        "--experimental"
+    ],
+    "files.trimTrailingWhitespace": true,
+    "files.trimFinalNewlines": true
 }
