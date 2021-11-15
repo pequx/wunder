@@ -1,9 +1,7 @@
 import base64
 import hashlib
 import hmac
-import json
 import logging
-import os
 import time
 import urllib.request
 from multiprocessing.dummy import Process as Thread

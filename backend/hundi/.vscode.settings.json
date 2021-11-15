@@ -1,8 +1,8 @@
 {
     "python.formatting.autopep8Path": "./backend/hundi/venv/bin/autopep8",
     "python.formatting.provider": "autopep8",
-    "python.defaultInterpreterPath": "./backend/hundi/venv/bin/python3.9",
-    "python.pythonPath": "backend/hundi/venv/bin/python3.9",
+    "python.defaultInterpreterPath": "./backend/hundi/venv/bin/python3.10",
+    "python.pythonPath": "backend/hundi/venv/bin/python3.10",
     "python.linting.cwd": "./backend/hundi",
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,

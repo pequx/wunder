@@ -9,9 +9,12 @@ from setuptools import find_packages, setup
 from setuptools.command.test import test as TestCommand
 
 
-COVERAGE_XML = config("HUNDI_COVERAGE_XML", default=True)
-COVERAGE_HTML = config("HUNDI_COVERAGE_HTML", default=False)
-JUNIT_XML = config("HUNDI_JUNIT_XML", default=True)
+COVERAGE_XML = os.environ.get("HUNDI_COVERAGE_XML",
+                              config("HUNDI_COVERAGE_XML", default=True, cast=bool))
+COVERAGE_HTML = os.environ.get("HUNDI_COVERAGE_HTML",
+                               config("HUNDI_COVERAGE_HTML", default=False, cast=bool))
+JUNIT_XML = os.environ.get("HUNDI_JUNIT_XML",
+                           config("HUNDI_JUNIT_XML", default=True, cast=bool))
 
 # Add here all kinds of additional classifiers as defined under
 # https://pypi.python.org/pypi?%3Aaction=list_classifiers
