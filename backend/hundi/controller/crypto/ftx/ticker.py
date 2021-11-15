@@ -1,10 +1,10 @@
 import json
 import logging
-from decimal import Decimal
-from multiprocessing.dummy import Process as Thread
-
 import requests
 import websocket
+
+from decimal import Decimal
+from multiprocessing.dummy import Process as Thread
 
 from hundi.config.message import (
     CONTRACT_SUBSCRIPTION_STATUS,
@@ -24,13 +24,13 @@ from hundi.config.market import (
     MARKET_FTX_WEBSOCKET_URL,
 )
 from hundi.model.ticker import TickerFutures as TickerFTX
-from hundi.writer.ticker import Kai
+from hundi.writer.ticker import KairosDBTickerWriter as Writer
 
 logger = logging.getLogger(__name__)
 
 
 class WebsocketTicker(Thread):
-    def __init__(self, writer, market_type, pairs):
+    def __init__(self, writer: Writer, market_type: str, pairs):
         self.writer = writer
         self.writer.exchange = (
             MARKET_FTX_NAME["SPOT"]

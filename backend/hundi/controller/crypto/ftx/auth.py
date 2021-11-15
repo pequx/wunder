@@ -5,9 +5,9 @@ import json
 import logging
 import os
 import time
-from multiprocessing.dummy import Process as Thread
-
 import websocket
+
+from multiprocessing.dummy import Process as Thread
 
 from hundi.config.message import (
     WEBSCOKED_STARTED,
