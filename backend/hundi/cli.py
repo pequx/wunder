@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from action.health import Health
+from action import health, observer
 import logging
 import sys
 import click
@@ -22,7 +22,13 @@ def cli(ctx, log_level):
 
 @cli.command("healthcheck")
 def healthcheck():
-    click.echo(Health("cli").check())
+    click.echo(health.check("cli"))
+
+
+@click.option("--log_level", default=logging.INFO)
+@cli.command("observe")
+def observe(log_level: int):
+    click.echo(observer.observe(log_level))
 
 
 def main():

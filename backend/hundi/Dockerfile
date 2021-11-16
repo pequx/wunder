@@ -15,7 +15,7 @@ RUN useradd -d /home/app -m -s /bin/sh app
 RUN install -d -o app -g app /app
 
 ENV PYTHONPATH=/app
-ENV PATH=/home/app/.local/bin:/usr/local/bin:/usr/bin:/bin
+ENV PATH=/home/app/.local/bin:/usr/local/bin:/usr/bin:/bin:/app/backend/hundi
 
 USER app
 WORKDIR /app
@@ -38,3 +38,4 @@ RUN pip install -r requirements-dev.txt
 USER root
 RUN chmod 0777 cli.py
 USER app
+CMD ["cli.py", ""]
