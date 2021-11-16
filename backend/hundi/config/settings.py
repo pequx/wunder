@@ -21,3 +21,14 @@ KAIROSDB_TTL: int = int(
         "KAIROSDB_TTL", default=15 * 365 * 24 * 60 * 60, cast=int)
     )
 )
+LOG_PATH = os.environ.get(
+    "HUNDI_RELATIVE_LOG_PATH",
+    config(
+        "HUNDI_RELATIVE_LOG_PATH",
+        default="../../logs/hundi.log"))
+
+LOG_QUEUE_MAX_SIZE = os.environ.get(
+    "HUNDI_LOG_QUEUE_MAX_SIZE",
+    config(
+        "HUNDI_LOG_QUEUE_MAX_SIZE",
+        default=100, cast=int))

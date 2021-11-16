@@ -28,7 +28,7 @@ def healthcheck():
 @click.option("--log_level", default=logging.INFO)
 @cli.command("observe")
 def observe(log_level: int):
-    click.echo(observer.observe(log_level))
+    click.echo(observer.observe(log_level, cli=click))
 
 
 def main():
