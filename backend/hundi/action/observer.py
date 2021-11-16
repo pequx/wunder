@@ -12,8 +12,8 @@ from config.message import (
 logger = logging.getLogger(__name__)
 
 
-def observe(log_level: int, cli: click):
-    observer = Observer(log_level)
+def observe(log_level, filter, cli: click):
+    observer = Observer(log_level, filter)
 
     try:
         observer.start()
