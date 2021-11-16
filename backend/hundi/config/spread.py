@@ -4,7 +4,7 @@ SPREAD_COLUMN_MAPPING = {
     "s_bid": "v2",
 }
 SPREAD_THRESHOLDS = {
-    "FUTURES": {
+    "futures": {
         "s5": ">0",
         "s6": "<0",
         "s7": ">0",

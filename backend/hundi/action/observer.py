@@ -12,7 +12,7 @@ from config.message import (
 logger = logging.getLogger(__name__)
 
 
-def observe(log_level, filter, cli: click):
+def observe(log_level, filter: str or None, cli: click):
     observer = Observer(log_level, filter)
 
     try:

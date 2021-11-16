@@ -59,8 +59,8 @@ ORDER_AGGREGATORS = {
     ],
 }
 # ORDERBOOK_COLUMNS = {
-#     "SPOT": ["channelID", "data", "channelName", "pair"]
+#     "spot": ["channelID", "data", "channelName", "pair"]
 # }
 # ORDERBOOK_ASK_COLUMNS = {
-#     "SPOT": ["channelID", "data", "channelName", "pair"]
+#     "spot": ["channelID", "data", "channelName", "pair"]
 # }

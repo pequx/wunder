@@ -1,17 +1,17 @@
-TICKER_COLUMNS = {"SPOT": ["channelID", "points", "channelName", "pair"]}
+TICKER_COLUMNS = {"spot": ["channelID", "points", "channelName", "pair"]}
 TICKER_DEFAULT_COLUMNS = {
-    "SPOT": ["b", "a", "bs", "as", "v"],
-    "FUTURES": ["b", "a", "bs", "as", "v"],
+    "spot": ["b", "a", "bs", "as", "v"],
+    "futures": ["b", "a", "bs", "as", "v"],
 }
 TICKER_COLUMN_MAPPING = {
-    "SPOT": {
+    "spot": {
         "bid": "b",
         "ask": "a",
         "bid_size": "bs",
         "ask_size": "as",
         "volume": "v",
     },
-    "FUTURES": {
+    "futures": {
         "bid": "b",
         "ask": "a",
         "bid_size": "bs",
@@ -20,8 +20,8 @@ TICKER_COLUMN_MAPPING = {
     },
 }
 TICKER_SLOTS = {
-    "SPOT": ["timestamp", "open", "high", "low", "close", "volume"],
-    "FUTURES": ["timestamp", "bid", "ask", "bid_size", "ask_size", "volume"],
+    "spot": ["timestamp", "open", "high", "low", "close", "volume"],
+    "futures": ["timestamp", "bid", "ask", "bid_size", "ask_size", "volume"],
     "FTX": ["timestamp", "bid", "ask", "bid_size", "ask_size"]
 }
 TICKER_START_RELATIVE = 1
@@ -29,7 +29,7 @@ TICKER_END_RELATIVE = 0
 TICKER_CACHE_TIME = 300
 TICKERS_BUFFER_SIZE = 100
 TICKER_OHLC_COLUMNS = {
-    "SPOT": [
+    "spot": [
         "time",
         "etime",
         "open",

@@ -4,9 +4,10 @@ import requests
 import websocket
 
 from decimal import Decimal
-from multiprocessing.dummy import Process as Thread
+from multiprocessing import Process
+from queue import Queue
 
-from hundi.config.message import (
+from config.message import (
     CONTRACT_SUBSCRIPTION_STATUS,
     SNAPSHOT_MESSAGE,
     SUBSCRIBED_TO_CHANNELS,
@@ -18,160 +19,146 @@ from hundi.config.message import (
     WEBSOCKET_STOPPED,
     UNKNOWN_PAIRS
 )
-from hundi.config.market import (
+from config.market import (
     MARKET_FTX_NAME,
-    MARKET_FTX_REST_URL,
     MARKET_FTX_WEBSOCKET_URL,
 )
-from hundi.model.ticker import TickerFutures as TickerFTX
-from hundi.writer.ticker import KairosDBTickerWriter as Writer
+from model.ticker import TickerFutures as TickerFTX
+from writer.ticker import KairosDBTickerWriter as Writer
+from lib import helper
 
 logger = logging.getLogger(__name__)
 
 
-class WebsocketTicker(Thread):
-    def __init__(self, writer: Writer, market_type: str, pairs):
+class TickerFtxCryptoController(Process):
+    def __init__(self, writer: Writer, market_type: str, pair: str):
         self.writer = writer
-        self.writer.exchange = (
-            MARKET_FTX_NAME["SPOT"]
-            if market_type == "spot"
-            else MARKET_FTX_NAME["FUTURES"]
-        )
-        self.writer.market_type = market_type
-        self.pairs = pairs
-        self.tick = {}
-        self.topic_pair = {}
+        self.market_type = market_type.lower()
+        self.pair = pair.lower()
+        self.exchange = MARKET_FTX_NAME["spot"] if self.market_type == "spot" else MARKET_FTX_NAME["futures"],
         self.channels = {}
-        self.market_type = market_type
         self.volumes = {}
-
+        self.message = {}
+        self.ticker = {}
         self._ws = websocket.WebSocketApp(
-            MARKET_FTX_WEBSOCKET_URL["SPOT"]
-            if market_type == "spot"
-            else MARKET_FTX_WEBSOCKET_URL["FUTURES"],
+            MARKET_FTX_WEBSOCKET_URL["spot"] if self.market_type == "spot" else MARKET_FTX_WEBSOCKET_URL["futures"],
             on_open=self.on_open,
             on_message=self.on_message,
             on_error=self.on_error,
             on_close=self.on_close,
         )
 
-    def on_message(self, message):
-        message = json.loads(message)
-        if "type" in message:
-            if message.get("type") == "subscribed":
-                logger.debug(
-                    CONTRACT_SUBSCRIPTION_STATUS.format(
-                        message.get("type"), message.get("market")
-                    )
-                )
-                if self.get_volumes() is False:
-                    logger.warning("No volumes.")
-                self.channels[message.get("market")] = {"status": message.get("type")}
-            elif message.get("type") == "update":
-                logger.debug(SNAPSHOT_MESSAGE.format(message))
-                key = message["market"]
-                ticker = self.get_ticker(message)
-                self.writer.write(key, ticker)
-
-    def get_volumes(self):
-        for pair in self.pairs:
-            url = "{}{}".format(
-                MARKET_FTX_REST_URL[self.market_type.upper()]["SNAPSHOT"],
-                pair.upper().replace("/", "%2F"),
-            )
-            logger.debug(url)
-            response = requests.get(url).json()
-            # if response.get("success") is False:
-            #     logger.warning("no volume.")
-            logger.debug(response)
-            result = response["result"]
-            self.volumes[pair.upper()] = (
-                Decimal(result["volume"])
-                if self.market_type == "futures"
-                else Decimal(result["quoteVolume24h"])
-            )
-        logger.debug(self.volumes)
-        if len(self.volumes) == len(self.pairs):
-            return True
-        else:
-            return False
-
-    def get_ticker(self, message):
-        data = message.get("data")
-        logger.debug(message)
-        bid_size = Decimal(data["bidSize"])
-        ask_size = Decimal(data["askSize"])
-        self.volumes[message["market"]] += bid_size + ask_size
-        ticker = TickerFTX(
-            timestamp=float(data["time"]),  # to float unix
-            bid=Decimal(data["bid"]),
-            ask=Decimal(data["ask"]),
-            bid_size=bid_size,
-            ask_size=ask_size,
-            volume=self.volumes[message["market"]],
-        )
-        return ticker
-
-    def on_error(self, error):
-        logger.error(WEBSOCKET_ERROR.format(repr(error)))
-        self.stop()
-
-    def on_close(self):
-        if self._t._running:
-            try:
-                self.stop()
-            # except Exception as e:
-            #     logger.exception(e)
-            # try:
-            #     self.start()
-            except Exception as e:
-                logger.error(WEBSOCKET_EXCEPTION_ON_CLOSE)
-                logger.exception(e)
-                # self.stop()
-        else:
-            logger.info(WEBSOCKET_CLOSED)
-
     def on_open(self):
-        if self.pairs is None:
-            logger.warning(UNKNOWN_PAIRS.format(self.paris))
+        if self.market_type == "spot" or self.market_type == "futures":
             subscribe = json.dumps(
-                {"op": "subscribe", "channel": "markets"}
+                {"op": "subscribe", "channel": "ticker", "market": self.pair.upper()}
             )
             logger.info(SUBSCRIBED_TO_CHANNELS.format(subscribe))
             self._ws.send(subscribe)
         else:
-            if self.market_type == "spot" or self.market_type == "futures":
-                for pair in self.pairs:
-                    subscribe = json.dumps(
-                        {"op": "subscribe", "channel": "ticker", "market": pair}
-                    )
-                    logger.info(SUBSCRIBED_TO_CHANNELS.format(subscribe))
-                    self._ws.send(subscribe)
-            else:
-                logger.warning(UNKNOWN_MARKET_TYPE.format(self.market_type))
-                return
-            return
+            return Exception(UNKNOWN_MARKET_TYPE.format(self.market_type))
+
+    def on_message(self, message: str):
+        self.message = json.loads(message)
+
+        if "type" in message:
+            type = self.message.get("type")
+            pair = self.message.get("market").lower()
+
+            if type == "subscribed":
+                logger.info(CONTRACT_SUBSCRIPTION_STATUS.format(type, pair))
+                # if self.get_volumes() is False:
+                #     logger.warning("No volumes.")
+                self.channels[pair] = {"status": type}
+            elif type == "update":
+                logger.debug(SNAPSHOT_MESSAGE.format(message))
+
+                if pair != self.pair:
+                    return Exception('Pairs do not match.')
+
+                if self.get_ticker() is False:
+                    return Exception('No ticker')
+
+                if self.writer.write(
+                        path=helper.get_metric_name(type="crypto", exchange=self.exchange, key=pair),
+                        ticker=self.ticker) is False:
+                    logger.error("Write error")
+                self.ticker = {}
+        else:
+            return Exception("missing Market type")
+
+    def on_error(self, e):
+        logger.error(WEBSOCKET_ERROR.format(repr(e)))
+
+        self.stop()
+
+    def on_close(self):
+        if self._t._running:
+            self.stop()
+            logger.info(WEBSOCKET_CLOSED)
+
+    # def get_volumes(self):
+    #     url = "{}{}".format(
+    #         MARKET_FTX_REST_URL[self.market_type]["snapshot"],
+    #         self.pair.replace("/", "%2F"),
+    #     )
+    #     logger.debug(url)
+    #     response = requests.get(url).json()
+    #     # if response.get("success") is False:
+    #     #     logger.warning("no volume.")
+    #     logger.debug(response)
+    #     result = response["result"]
+    #     self.volumes[self.pair] = (
+    #         Decimal(result["volume"])
+    #         if self.market_type == "futures"
+    #         else Decimal(result["quoteVolume24h"])
+    #     )
+    #     logger.debug(self.volumes)
+    #     if len(self.volumes) == len(self.pairs):
+    #         return True
+    #     else:
+    #         return False
+
+    def get_ticker(self):
+        try:
+            data = self.message.get("data")
+            if data is None:
+                return Exception("No data")
+
+            bid_size = Decimal(data.get("bidSize"))
+            ask_size = Decimal(data("ask_size"))
+            # self.volumes[message["market"]] += bid_size + ask_size
+
+            self.ticker = TickerFTX(
+                timestamp=float(data["time"]),  # to float unix
+                bid=Decimal(data["bid"]),
+                ask=Decimal(data["ask"]),
+                bid_size=bid_size,
+                ask_size=ask_size,
+                volume=0,
+            )
+
+            return True
+        except Exception as e:
+            logger.exception(e)
+
+            return False
 
     @property
     def status(self):
-        """
-        Returns True if the websocket is running, False if not
-        """
         try:
             return self._t._running
         except Exception:
             return False
 
     def start(self):
-        """ Run the websocket in a thread """
-        self._t = Thread(target=self._ws.run_forever)
+        self._t = Process(target=self._ws.run_forever)
         self._t.daemon = True
         self._t._running = True
         self._t.start()
         logger.info(WEBSCOKED_STARTED)
 
     def stop(self):
-        """ Stop/join the websocket thread """
         self._t._running = False
         self._ws.close()
         self._t.join()

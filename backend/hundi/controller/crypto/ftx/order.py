@@ -33,9 +33,9 @@ class WebsockerOrder(object):
     def __init__(self, writer: Writer, market_type, pairs):
         self.writer = writer
         self.writer.exchange = (
-            MARKET_FTX_NAME["SPOT"]
+            MARKET_FTX_NAME["spot"]
             if market_type == "spot"
-            else MARKET_FTX_NAME["FUTURES"]
+            else MARKET_FTX_NAME["futures"]
         )
         self.writer.market_type = market_type
         self.pairs = pairs
@@ -45,9 +45,9 @@ class WebsockerOrder(object):
         self.asks = []
 
         self._ws = websocket.WebSocketApp(
-            MARKET_FTX_WEBSOCKET_URL["SPOT"]
+            MARKET_FTX_WEBSOCKET_URL["spot"]
             if market_type == "spot"
-            else MARKET_FTX_WEBSOCKET_URL["FUTURES"],
+            else MARKET_FTX_WEBSOCKET_URL["futures"],
             on_open=self.on_open,
             on_message=self.on_message,
             on_error=self.on_error,
@@ -123,7 +123,7 @@ class WebsockerOrder(object):
             logger.info(WEBSOCKET_CLOSED)
 
     def on_open(self):
-        for pair in MARKET_FTX_PAIRS["FUTURES"]:
+        for pair in MARKET_FTX_PAIRS["futures"]:
             subscribe = json.dumps(
                 {"op": "subscribe", "channel": "orderbook", "market": pair}
             )

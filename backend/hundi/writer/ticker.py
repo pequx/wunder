@@ -1,12 +1,17 @@
 import datetime
 import logging
-from abc import ABC, abstractmethod
 
-from hundi.lib import helper
-from hundi.lib.kairosdb import ticker as kairosdb
-from hundi.config.message import (TICKERS_BUFFER_SIZE, TICKERS_WRITTEN_COUNT, UNKNOWN_MARKET_TYPE)
-from hundi.config.market import MARKET_FTX_NAME
-from hundi.model.ticker import TickerFutures, TickerSpot
+from abc import ABC, abstractmethod
+from queue import Queue
+
+from lib import helper
+from lib.kairosdb.ticker import TickerKairosDbLib as kairosdb
+from config.message import (TICKERS_WRITTEN_COUNT, UNKNOWN_MARKET_TYPE)
+from config.ticker import TICKERS_BUFFER_SIZE
+from config.market import MARKET_FTX_NAME
+from model.ticker import TickerFutures, TickerSpot
+from lib import helper
+from config.settings import ENVIRONMENT
 
 logger = logging.getLogger(__name__)
 
@@ -18,74 +23,67 @@ class TickerWriter(ABC):
         raise NotImplementedError
 
 
-class DictionaryTickerWriter(TickerWriter):
-    def __init__(self, output):
-        self.output = output
+# class DictionaryTickerWriter(TickerWriter):
+#     def __init__(self, output):
+#         self.output = output
 
-    def get_timestamp(ticker):
-        return datetime.datetime.fromtimestamp(ticker.timestamp)
+#     def get_timestamp(ticker):
+#         return datetime.datetime.fromtimestamp(ticker.timestamp)
 
-    def write(self, pair, ticker, market_type="futures"):
-        if market_type == "futures":
-            self.output.append(
-                {
-                    "pair": pair,
-                    "timestamp": self.get_timestamp(ticker),
-                    "bid": ticker.bid,
-                    "ask": ticker.ask,
-                    "bid_size": ticker.bid_size,
-                    "ask_size": ticker.ask_size,
-                    "volume": ticker.volume,
-                }
-            )
-        elif market_type == "spot":
-            self.output.append(
-                {
-                    "pair": pair,
-                    "timestamp": self.get_timestamp(ticker),
-                    "open": ticker.bid,
-                    "high": ticker.high,
-                    "low": ticker.low,
-                    "close": ticker.close,
-                    "volume": ticker.volume,
-                }
-            )
-        else:
-            logger.error(UNKNOWN_MARKET_TYPE)
+#     def write(self, pair, ticker, market_type="futures"):
+#         if market_type == "futures":
+#             self.output.append(
+#                 {
+#                     "pair": pair,
+#                     "timestamp": self.get_timestamp(ticker),
+#                     "bid": ticker.bid,
+#                     "ask": ticker.ask,
+#                     "bid_size": ticker.bid_size,
+#                     "ask_size": ticker.ask_size,
+#                     "volume": ticker.volume,
+#                 }
+#             )
+#         elif market_type == "spot":
+#             self.output.append(
+#                 {
+#                     "pair": pair,
+#                     "timestamp": self.get_timestamp(ticker),
+#                     "open": ticker.bid,
+#                     "high": ticker.high,
+#                     "low": ticker.low,
+#                     "close": ticker.close,
+#                     "volume": ticker.volume,
+#                 }
+#             )
+#         else:
+#             logger.error(UNKNOWN_MARKET_TYPE)
 
 
 class KairosDBTickerWriter(TickerWriter):
-    def __init__(self, exchange="default", type="crypto", market_type="spot"):
-        self.buffer = []
-        self.count = 0
-        self.exchange = exchange
-        self.type = type
-        self.market_type = market_type
-        # self.pair = pair
-        self.source = "ticker_writer.py"
-        pass
+    def __init__(self):
+        self.queue = Queue(maxsize=TICKERS_BUFFER_SIZE)
+        self.count = {
+            "total": 0,
+            "queue": 0
+        }
+        self.source = "{}.hundi.writer.ticker".format(ENVIRONMENT)
+        self.db = kairosdb()
 
-    def write(self, pair, ticker, interval=0):
-        tags = {"source": self.source}
+    def write(self, path: str, ticker: TickerSpot or TickerFutures):
+        try:
+            self.queue.put(ticker)
+            self.count["queue"] = + 1
+            self.queue.join()
 
-        path = helper.get_metric_name(
-            type=self.type,
-            exchange=self.exchange,
-            key=pair,
-            period=(interval if interval > 0 else None),
-            variant=("ticker" if interval == 0 else None),
-        )
-        self.buffer.append(ticker)
-        self.count += 1
-
-        if len(self.buffer) > TICKERS_BUFFER_SIZE:
-            market_type = (
-                "futures"
-                if self.exchange == MARKET_FTX_NAME["SPOT"]
-                else self.market_type
-            )
-            kairosdb.put_tickers(market_type, path, self.buffer, tags)
-            logger.info(TICKERS_WRITTEN_COUNT.format(self.count))
-            self.buffer = []
-
-        logger.debug(TICKERS_BUFFER_SIZE.format(len(self.buffer)))
+            if self.count["queue"] >= TICKERS_BUFFER_SIZE:
+                if self.db.put_tickers(path, tickers=self.queue.get(), tags={"source": self.source}) is False:
+                    return Exception("Write exception.")
+                self.count["total"] += self.count["total"] + self.count["queue"]
+                logger.info(TICKERS_WRITTEN_COUNT.format(self.count["total"]))
+                self.queue.task_done()
+                self.count["queue"] = 0
+            logger.debug(TICKERS_BUFFER_SIZE.format(self.count["queue"]))
+            return True
+        except Exception as e:
+            logger.exception(e)
+            return False

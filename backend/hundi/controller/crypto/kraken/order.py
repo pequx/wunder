@@ -43,18 +43,18 @@ class WebsocketOrderbook(object):
     def __init__(self, writer: Writer, market_type, pairs):
         self.writer = writer
         self.writer.exchange = (
-            MARKET_KRAKEN_NAME["SPOT"]
+            MARKET_KRAKEN_NAME["spot"]
             if market_type == "spot"
-            else MARKET_KRAKEN_NAME["FUTURES"]
+            else MARKET_KRAKEN_NAME["futures"]
         )
         self.writer.market_type = market_type
         self.channels = {}
         self.pairs = pairs
         self.market_type = market_type
         self._ws = websocket.WebSocketApp(
-            MARKET_KRAKEN_WEBSOCKET_URL["SPOT"]
+            MARKET_KRAKEN_WEBSOCKET_URL["spot"]
             if market_type == "spot"
-            else MARKET_KRAKEN_WEBSOCKET_URL["FUTURES"],
+            else MARKET_KRAKEN_WEBSOCKET_URL["futures"],
             on_open=self.on_open,
             on_message=self.on_message,
             on_error=self.on_error,

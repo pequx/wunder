@@ -38,9 +38,9 @@ class WebsocketTicker(object):
     def __init__(self, writer: Writer, market_type: str, pairs: str, interval):
         self.writer = writer
         self.writer.exchange = (
-            MARKET_KRAKEN_NAME["SPOT"]
+            MARKET_KRAKEN_NAME["spot"]
             if market_type == "spot"
-            else MARKET_KRAKEN_NAME["FUTURES"]
+            else MARKET_KRAKEN_NAME["futures"]
         )
         self.writer.market_type = market_type
         self.pairs = pairs
@@ -51,9 +51,9 @@ class WebsocketTicker(object):
         self.market_type = market_type
 
         self._ws = websocket.WebSocketApp(
-            MARKET_KRAKEN_WEBSOCKET_URL["SPOT"]
+            MARKET_KRAKEN_WEBSOCKET_URL["spot"]
             if market_type == "spot"
-            else MARKET_KRAKEN_WEBSOCKET_URL["FUTURES"],
+            else MARKET_KRAKEN_WEBSOCKET_URL["futures"],
             on_open=self.on_open,
             on_message=self.on_message,
             on_error=self.on_error,
@@ -138,10 +138,10 @@ class WebsocketTicker(object):
             )
             return ticker
         elif self.market_type == "spot":
-            DataTicker = collections.namedtuple("Data", TICKER_COLUMNS["SPOT"])
+            DataTicker = collections.namedtuple("Data", TICKER_COLUMNS["spot"])
             msg = DataTicker._make(message)
             if msg.channelName.startswith("ohlc"):
-                DataOHLC = collections.namedtuple("OHLC", TICKER_OHLC_COLUMNS["SPOT"])
+                DataOHLC = collections.namedtuple("OHLC", TICKER_OHLC_COLUMNS["spot"])
                 ohlc = DataOHLC._make(msg.points)
                 ticker = TickerSpot(
                     timestamp=float(ohlc.etime),
@@ -162,8 +162,8 @@ class WebsocketTicker(object):
     #             ohlc = DataOHLC._make(msg.points)
     #             candle = Candle(
     #                 timestamp=int(Decimal(ohlc.etime))
-    #                 - 60 * MARKET_KRAKEN_INTERVAL["SPOT"],
-    #                 period=CandlePeriod(MARKET_KRAKEN_INTERVAL["SPOT"] * 60),
+    #                 - 60 * MARKET_KRAKEN_INTERVAL["spot"],
+    #                 period=CandlePeriod(MARKET_KRAKEN_INTERVAL["spot"] * 60),
     #                 open=Decimal(ohlc.open),
     #                 high=Decimal(ohlc.high),
     #                 low=Decimal(ohlc.low),
@@ -176,7 +176,7 @@ class WebsocketTicker(object):
     # elif self.market_type == "futures":
     #     candle = Candle(
     #         timestamp=int(message["time"] / 1000),
-    #         period=CandlePeriod(MARKET_KRAKEN_INTERVAL["FUTURES"] * 60),
+    #         period=CandlePeriod(MARKET_KRAKEN_INTERVAL["futures"] * 60),
     #         high=Decimal(message["bid"]),
     #         low=Decimal(message["ask"]),
     #         open=Decimal(message["markPrice"]),
