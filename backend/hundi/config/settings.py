@@ -41,3 +41,8 @@ LOG_UPDATE_INTERVAL = os.environ.get(
 LOG_MAX_LINES = config(
     "HUNDI_LOG_MAX_LINES",
     default=1000, cast=int)
+
+EXTRAS_REQUIRE = {"kuberentes": []}
+COVERAGE_XML = True
+COVERAGE_HTML = False
+CONSOLE_SCRIPTS = ["huni = hundi"]

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-from action import health, observer
+from hundi.action import health, observer
+from hundi.action.crypto.ftx.ticker import TickerFtxCryptoAction
+from hundi.lib import bootstrap
 import logging
 import sys
 import click
-
-from lib import bootstrap
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -24,13 +24,18 @@ def cli(ctx, log_level):
 def healthcheck():
     click.echo(health.check("cli"))
 
-
+@cli.command("observe")
 @click.option("--log_level", default=logging.INFO)
 @click.option("--filter")
-@cli.command("observe")
 def observe(log_level, filter):
     click.echo(observer.observe(log_level, filter, cli=click))
 
+@cli.command("action:crypto:ftx:ticker")
+@click.option("--pair")
+@click.option("--market_type")
+def ticker_ftx_crypto_action(pair: str, market_type:str):
+    action = TickerFtxCryptoAction(pair, market_type)
+    click.echo(action.start)
 
 def main():
     cli()

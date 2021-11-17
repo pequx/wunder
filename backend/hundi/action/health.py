@@ -2,8 +2,8 @@ import logging
 import psutil
 import json
 
-from config.settings import DEVELOPMENT
-from config.message import HEALTH_CHECK, HEALTH_CHECK_RESULT
+from hundi.config.settings import DEVELOPMENT
+from hundi.config.message import HEALTH_CHECK, HEALTH_CHECK_RESULT
 from lib import helper
 
 logger = logging.getLogger(__name__)

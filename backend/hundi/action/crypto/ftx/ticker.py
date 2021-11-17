@@ -1,9 +1,9 @@
 import time
 import logging
 
-from writer.ticker import KairosDBTickerWriter as Writer
-from controller.crypto.ftx.ticker import TickerFtxCryptoController as Controller
-from config.market import MARKET_FTX_NAME
+from hundi.writer.ticker import KairosDBTickerWriter as Writer
+from hundi.controller.crypto.ftx.ticker import TickerFtxCryptoController as Controller
+from hundi.config.market import MARKET_FTX_NAME
 
 logger = logging.getLogger(__name__)
 

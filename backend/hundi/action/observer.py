@@ -2,7 +2,7 @@ import logging
 import click
 
 from lib.observer import Observer
-from config.message import (
+from hundi.config.message import (
     INFO_KEYBOARD_INTERRUPT,
     ACTION_LOOP_EXCEPTION,
     ACTION_STOP_EXCEPTION,

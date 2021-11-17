@@ -7,7 +7,7 @@ from decimal import Decimal
 from multiprocessing import Process
 from queue import Queue
 
-from config.message import (
+from hundi.config.message import (
     CONTRACT_SUBSCRIPTION_STATUS,
     SNAPSHOT_MESSAGE,
     SUBSCRIBED_TO_CHANNELS,
@@ -19,12 +19,12 @@ from config.message import (
     WEBSOCKET_STOPPED,
     UNKNOWN_PAIRS
 )
-from config.market import (
+from hundi.config.market import (
     MARKET_FTX_NAME,
     MARKET_FTX_WEBSOCKET_URL,
 )
 from model.ticker import TickerFutures as TickerFTX
-from writer.ticker import KairosDBTickerWriter as Writer
+from hundi.writer.ticker import KairosDBTickerWriter as Writer
 from lib import helper
 
 logger = logging.getLogger(__name__)
