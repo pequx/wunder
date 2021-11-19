@@ -1,3 +1,4 @@
+TICKER_ACTION = "hundi.action.crypto.ftx.ticker"
 TICKER_COLUMNS = {"spot": ["channelID", "points", "channelName", "pair"]}
 TICKER_DEFAULT_COLUMNS = {
     "spot": ["b", "a", "bs", "as", "v"],

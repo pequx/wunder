@@ -2,6 +2,7 @@
 
 from hundi.action import health, observer
 from hundi.action.crypto.ftx.ticker import TickerFtxCryptoAction
+from hundi.config.ticker import TICKER_ACTION
 from hundi.lib import bootstrap
 import logging
 import sys
@@ -24,18 +25,22 @@ def cli(ctx, log_level):
 def healthcheck():
     click.echo(health.check("cli"))
 
+
 @cli.command("observe")
 @click.option("--log_level", default=logging.INFO)
 @click.option("--filter")
 def observe(log_level, filter):
     click.echo(observer.observe(log_level, filter, cli=click))
 
-@cli.command("action:crypto:ftx:ticker")
-@click.option("--pair")
+
+@cli.command(TICKER_ACTION)
 @click.option("--market_type")
-def ticker_ftx_crypto_action(pair: str, market_type:str):
-    action = TickerFtxCryptoAction(pair, market_type)
-    click.echo(action.start)
+@click.option("--pair")
+def ticker_ftx_crypto_action(market_type: str, pair: str):
+    action = TickerFtxCryptoAction(market_type, pair)
+    action.start()
+    click.echo("Action: {} executed.".format(TICKER_ACTION))
+
 
 def main():
     cli()
