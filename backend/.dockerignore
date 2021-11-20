@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# App home folder
+home/
+
 # Distribution / packaging
 .Python
 build/
@@ -137,7 +140,7 @@ dmypy.json
 cython_debug/
 
 # VS Code
-.vscode
+.vscode/
 
 # Logs
 /logs

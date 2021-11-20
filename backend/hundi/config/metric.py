@@ -1,1 +1,1 @@
-METRIC_CRYPTO = "{}.hundi.{}.{}.{}.{}"
+METRIC_CRYPTO = "hundi.{}.{}.{}.{}.{}"

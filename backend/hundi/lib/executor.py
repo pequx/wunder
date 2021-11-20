@@ -46,7 +46,7 @@ class ExecutorLib():
                 self._finish_event.clear()
                 return func(args) if args else func()
         except Exception:
-            logger.exception('Exception during execution of long running task %s', self.scheduled_action)
+            logger.exception('Exception during execution of task %s', self.scheduled_action)
         finally:
             with self:
                 self.reset_scheduled_action()
@@ -61,14 +61,15 @@ class ExecutorLib():
                 self._thread = Thread(target=self.run, args=(func, args))
                 self._thread.start()
         except Exception:
-            logger.exception('Exception during execution of long running task %s', self.scheduled_action)
+            logger.exception('Exception during execution of task %s', self.scheduled_action)
         finally:
             with self:
                 self.reset_scheduled_action()
                 self._finish_event.set()
 
-    def try_run_async(self, action: str, func: FunctionType, args=()):
+    def try_run_async(self, action: str, func: FunctionType, args=()) -> None:
         prev = self.schedule(action)
+
         if prev is None:
             return self.run_async(func, args)
         raise RuntimeError('Failed to run {0}, {1} is already in progress'.format(action, prev))

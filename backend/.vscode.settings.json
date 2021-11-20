@@ -1,8 +1,8 @@
 {
     "python.formatting.autopep8Path": "./backend/venv/bin/autopep8",
     "python.formatting.provider": "autopep8",
-    "python.defaultInterpreterPath": "./backend/venv/bin/python3.10",
-    "python.pythonPath": "backend/venv/bin/python3.10",
+    "python.defaultInterpreterPath": "./backend/venv/bin/python3.9",
+    "python.pythonPath": "./backend/venv/bin/python3.9",
     "python.linting.cwd": "./backend",
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,

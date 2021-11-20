@@ -46,3 +46,11 @@ MARKET_FTX_PAIRS = {
 MARKET_FTX_INTERVAL = {"spot": 1, "futures": 1}
 MARKET_FTX_API_KEY = config("MARKET_FTX_API_KEY", False)
 MARKET_FTX_API_SECRET = config("MARKET_FTX_API_SECRET", False)
+MARKET_FTX_CHANNEL = {
+    "markets": {},
+    "ticker": {}
+}
+MARKET_FTX_SUBSCRIPTION = {
+    "markets": {"op": "subscribe", "channel": "markets"},
+    "ticker": {"op": "subscribe", "channel": "ticker", "market": None}
+}

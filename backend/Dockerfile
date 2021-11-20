@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:experimental
 
-FROM python:3.10.0-slim-buster as base
+FROM python:3.9.7-slim-buster as base
 ENV HUNDI_ENVIRONMENT=base
 USER root
 RUN apt-get -qqy update && \
@@ -11,31 +11,30 @@ RUN apt-get -qqy update && \
 
 RUN /usr/local/bin/python -m pip install --upgrade pip
 
-RUN useradd -d /home/app -m -s /bin/sh app
+RUN useradd -d /home/app -m -r app
+RUN chown app /home/app
 RUN install -d -o app -g app /app
+RUN chown app /app
 
-ENV PYTHONPATH=/app
-ENV PATH=/home/app/.local/bin:/usr/local/bin:/usr/bin:/bin:/app/backend/hundi
-
-USER app
-WORKDIR /app
-
+ENV PATH=/home/app/.local/bin:/usr/local/bin:/usr/bin:/bin:/app:/app/hundi
 
 
 FROM base as build
 ENV HUNDI_ENVIRONMENT=build
-ADD requirements.txt ./
-RUN pip install -r requirements.txt
-
-
-
-FROM base as development
-ENV HUNDI_ENVIRONMENT=development
-ADD requirements.txt ./
-ADD requirements-dev.txt ./
-RUN pip install -r requirements.txt
-RUN pip install -r requirements-dev.txt
-USER root
-RUN chmod 0777 cli.py
 USER app
-CMD ["cli.py", ""]
+ADD ./requirements.txt /app/requirements.txt
+WORKDIR /app
+RUN pip install -r requirements.txt
+
+
+FROM build as development
+ENV HUNDI_ENVIRONMENT=development
+USER app
+ADD ./requirements-dev.txt /app/requirements-dev.txt
+WORKDIR /app
+RUN pip install -r requirements-dev.txt
+COPY . .
+USER root
+RUN chmod 0777 ./cli.py
+USER app
+ENTRYPOINT ["./cli.py", "--debug", "observe"]

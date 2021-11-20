@@ -6,10 +6,17 @@ DOCKER_BUILD := DOCKER_BUILDKIT=1 docker build
 COMPOSE := docker-compose --project-name $(NAMESPACE)
 REMOVE_NETWORK := docker newtork rm $(NETWORK)
 
+hundi-venv-install:
+	pyenv install 3.9.7
+
 hundi-venv-bootstrap:
 	pyenv local 3.9.7
 	virtualenv -p `pyenv which python` venv
 	venv/bin/python -m pip install --upgrade pip
+
+hundi-install:
+	venv/bin/python -m pip install -r requirements.txt
+	venv/bin/python -m pip install -r requirements-dev.txt
 
 # hundi-venv-activate:
 # 	source venv/bin/activate
@@ -19,11 +26,10 @@ hundi-venv-bootstrap:
 # 	rm -r venv
 
 hundi-vscode-bootstrap:
-	mkdir ../../.vscode
-	cp .vscode.settings.json ../../.vscode/settings.json
-	cp .vscode.launch.json ../../.vscode/launch.json
+	cp .vscode.settings.json ../.vscode/settings.json
+	cp .vscode.launch.json ../.vscode/launch.json
 
-debug-python:
+hundi-debug:
 	venv/bin/python3.9 -m debugpy --listen 5678 --wait-for-client $(file) $(args)
 
 hundi-up:
@@ -34,6 +40,12 @@ hundi-stop:
 
 hundi-down:
 	$(COMPOSE) down
+
+hundi-build:
+	$(COMPOSE) build
+
+hundi-rebuild:
+	$(COMPOSE) up --build
 
 hundi-clean:
 	$(COMPOSE) down -v --remove-orphans

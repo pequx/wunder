@@ -2,19 +2,19 @@ import logging
 import re
 import subprocess
 import time
+import os
 
 from threading import Thread
 from queue import Queue
 
-from hundi.config.settings import LOG_PATH, LOG_QUEUE_MAX_SIZE, LOG_UPDATE_INTERVAL, LOG_MAX_LINES
+from hundi.config.settings import LOG_PATH, LOG_QUEUE_MAX_SIZE, LOG_MAX_LINES
 from hundi.config.message import THREAD_RUN_EXCEPTION, THREAD_LOOP_EXCEPTION
 
 logger = logging.getLogger(__name__)
 
 
 class Observer(Thread):
-    def __init__(self, log_level: int, filter: str):
-        self.log_level = log_level if log_level else logging.INFO
+    def __init__(self, filter: str):
         self.queue = Queue(maxsize=LOG_QUEUE_MAX_SIZE)
         self.filter = filter
 
@@ -34,7 +34,6 @@ class Observer(Thread):
                     if line:
                         self.queue.put(line)
                         self.queue.join()
-                    time.sleep(LOG_UPDATE_INTERVAL)
                 except Exception as e:
                     logger.exception(THREAD_LOOP_EXCEPTION.format(e))
         except Exception as e:

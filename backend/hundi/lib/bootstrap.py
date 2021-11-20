@@ -39,17 +39,24 @@ class LogFormatter(logging.Formatter):
 def initialize_logging(log_level: int):
     #    formatter = logging.Formatter("%(asctime)s %(filename)s: " +
     # fmt.format("%(levelname)s") + " %(message)s",
-    #                                  "%Y/%m/%d %H:%M:%S")
+    #                                  "%Y/%m/%d %H:%M:%S")§
 
     if log_level is logging.DEBUG:
-        os.environ.setdefault('HUNDI_DEBUG', "True")
+        os.environ['HUNDI_DEBUG'] = "True"
+    os.environ['HUNDI_LOG_LEVEL'] = str(log_level)
+
+    if not os.path.isfile(LOG_PATH):
+        with open(LOG_PATH, 'w') as log:
+            log.write('Log init.')
+            pass
+
 
     style = "%(asctime)s %(levelname)8s [%(threadName)10s] [%(name)20s:%(lineno)-4s] %(message)s"
     formatter = LogFormatter(style)
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(formatter)
 
-    logging.basicConfig(filename=LOG_PATH, encoding='utf-8', level=logging.DEBUG, format=style)
+    logging.basicConfig(filename=LOG_PATH, encoding='utf-8', level=log_level, format=style)
 
     logging.root.setLevel(log_level)
     logging.root.addHandler(handler)

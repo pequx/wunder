@@ -1,7 +1,5 @@
-import time
-
 from datetime import datetime, timezone
-from typing import List
+from typing import Dict, List
 
 from hundi.config.message import UNKNOWN_MARKET_TYPE
 from hundi.config.settings import ENVIRONMENT
@@ -36,6 +34,9 @@ def get_exchanges_names(exchanges: str, type: str = "spot") -> List[str]:
     return n
 
 
+# def get_exchange_name(exchange: str) -> str:
+
+
 def get_exchange_url(exchange: str, type: str = "spot") -> str:
     e = exchange.lower()
     t = type.upper()
@@ -45,28 +46,97 @@ def get_exchange_url(exchange: str, type: str = "spot") -> str:
         return MARKET_FTX_WEBSOCKET_URL[t]
 
 
-def format_metric_exchange(string=""):
+def format_exchange(string=""):
     return string.replace(" ", ".").replace("-", "_").lower()
 
 
-def format_metric_key(string=""):
-    return string.replace(" ", "_").replace("/", "_").replace("-", "_").lower()
+def format_market(name=""):
+    return name.replace("/", "_").replace("-", "_").lower()
+
+# development.hundi.crypto.spot.ftx.abnb_1231.ticker
 
 
-def get_market_type(metric: str):
-    return metric.join('.')[2]
+def get_market_type(path: str or object) -> str:
+    if path is str:
+        return path.split('.')[3]
+
+        # def get_market(path: str):
+        #     return format_market(path.split('.')[4])
+
+        # def get_markets(paths: List[object]):
+        #     markets = []
+        #     for name in paths:
+        #         path = paths[name]
+        #         markets.append(path['name'])
+        #     return markets
 
 
-def get_metric_name(type: str, exchange: str, key: str, **kwargs):
+def format_name(name: str) -> str:
+    return name.replace("/", "_").replace("-", "_").lower()
+
+# def get_path(market: str, paths: List[str]):
+#     path = ""
+#     for index in enumerate(paths):
+#         path = paths[index]
+#         if market != get_market(market):
+#             return
+#         return path
+
+
+def format_path(path: Dict) -> str:
+    return METRIC_CRYPTO.format(
+        path['type'],
+        path['exchange'],
+        path['market_type'],
+        format_name(path['market']),
+        path['variant'])
+
+
+def get_subscription(paths: object) -> str:
+    for name in paths:
+        path = paths[name]
+        if path['variant'] == "subscription":
+            return path['market']
+        elif path['market'] == "markets" and path['variant'] == "":
+            return "markets"
+
+
+def get_url(paths: object) -> str:
+    for name in paths:
+        path = paths[name]
+        exchange = path['exchange']
+        market_type = path['market_type']
+
+        if exchange == "ftx":
+            return MARKET_FTX_WEBSOCKET_URL[market_type]
+
+
+def get_paths(type: str, exchange: str, market_type: str, markets: str, variant: str = "") -> object:
+    type = type.lower()
+    markets = markets.split(',')
+    market_type = market_type.lower()
+    paths = {}
     if type == "crypto":
-        # Metric_name: dev.hundi.crypto.kraken.xbt_usd.1m
-        #              dev.hundi.crypto.kraken.pi_xbtusd.buy
+        for market in markets:
+            paths[format_name(market)] = {
+                "type": type,
+                "exchange": exchange.lower(),
+                "market_type": market_type.lower(),
+                "market": market.lower(),
+                "variant": variant.lower()
+            }
+    return paths
+
+
+def get_metric_name(type: str, exchange: str, market_type: str, market: str, variant: str) -> str:
+    if type == "crypto":
+        # Metric_name: hundi.crypto.kraken.spot.xbt_usd.ticker
         name = METRIC_CRYPTO.format(
-            ENVIRONMENT,
             type,
-            format_metric_exchange(exchange),
-            format_metric_key(key),
-            get_metric_subkey(**kwargs),
+            format_exchange(exchange),
+            market_type,
+            format_market(market),
+            variant.lower()
         ).lower()
         return name
     else:
@@ -91,9 +161,9 @@ def get_order_metric_name(type="", exchange="", pair=""):
     )
 
 
-def get_metric_subkey(period: int, side: str, variant: str):
-    if period:
-        return "{}{}".format(str(period), "s").lower()
+def get_metric_subkey(period: int = 0, variant: str = None, side: str = None):
+    if period > 0:
+        return "{}{}".format(period, "s").lower()
     if side == "ask" or side == "sell":
         return "asks"
     elif side == "bid" or side == "buy":
@@ -113,8 +183,8 @@ def get_metric_subkey(period: int, side: str, variant: str):
 
 def get_sprad_suffixes(exchanges, pairs):
     lsuffix = ".{}.{}".format(
-        format_metric_exchange(exchanges[0]),
-        format_metric_key(pairs[0]),
+        format_exchange(exchanges[0]),
+        format_market(pairs[0]),
     )
     rsuffix = ".{}.{}".format(
         format_metric_exchange(exchanges[1]),

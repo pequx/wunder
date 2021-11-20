@@ -1,18 +1,21 @@
 version: "3.9"
 services:
   hundi:
-    image: python/python:3.10.0-slim-buster
+    image: hundi:local
     build:
       context: .
       target: development
-    enviroment:
-      - KAIROSDB_URL=http://localhost:8080
-      - KAIROSDB_API_DATAPOINTS=/api/v1/datapoints
+    env_file:
+      - ../.hundi.env
+      # - ../.kairosdb.env
     healthcheck:
-      test: ["CMD", "cli.py", "--info healthcheck"]
+      test: [ "CMD", "cli.py", "--info healthcheck" ]
       interval: 1m30s
       timeout: 10s
       retries: 5
       start_period: 40s
+    extra_hosts:
+      - host.docker.internal:host-gateway
     volumes:
       - ./:/app/:delegated
+      # - ../home:/home/app/:delegated
