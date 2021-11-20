@@ -1,11 +1,14 @@
 import logging
 import json
-
-from abc import ABC, abstractmethod
+from typing import Any
+import websocket
+import asyncio
+import _thread
+from threading import Thread
 from decimal import Decimal
-from websocket import WebSocketApp
+# from websocket import WebSocketApp
 
-from hundi.lib.executor import ExecutorLib as Executor
+from hundi.lib.kairosdb.ticker import TickerKairosDbLib as Db
 from hundi.writer.ticker import KairosDBTickerWriter as Writer
 from hundi.config.message import (
     CONTRACT_SUBSCRIPTION_STATUS,
@@ -26,50 +29,53 @@ from hundi.config.market import (
 from hundi.config.ticker import TICKER_ACTION
 from hundi.lib import helper
 from hundi.model.ticker import TickerFutures as TickerFTX
+from hundi.lib.executor import ExecutorLib as Executor
 
 logger = logging.getLogger(__name__)
 
 
-class TickerFtxCryptoAction(ABC):
-    def __init__(self, market_type: str, pair: str):
-        self.executor = Executor()
-        self.writer = Writer()
+class TickerFtxCryptoAction():
+    def __init__(self, market_type: str, pair: str) -> None:
+        self.db = Db()
+        self.writer = Writer(self.db)
         self.market_type = market_type.lower()
         self.pair = pair.lower()
         self.exchange = MARKET_FTX_NAME["spot"] if self.market_type == "spot" else MARKET_FTX_NAME["futures"]
         self.buffer = None
         self.ticker = None
-        self._ws = WebSocketApp(
-            url=MARKET_FTX_WEBSOCKET_URL["spot"] if self.market_type == "spot" else MARKET_FTX_WEBSOCKET_URL["futures"],
-            on_open=self.on_open,
-            on_message=self.on_message,
-            on_error=self.on_error,
-            on_close=self.on_close,
+        self.channel = None
+        self.url = MARKET_FTX_WEBSOCKET_URL["spot"] if self.market_type == "spot" else MARKET_FTX_WEBSOCKET_URL["futures"]
+        # self._executor = Executor()
+        self.header = None
+        self._thread = None
+        self._ws = websocket.WebSocketApp(
+            self.url,
+            self.header,
+            self.on_open,
+            self.on_message,
+            self.on_error,
+            self.on_close)
+
+    def on_open(self, ws: websocket.WebSocket):
+        subscribe = json.dumps(
+            {"op": "subscribe", "channel": "ticker", "market": self.pair.upper()}
         )
+        logger.info(SUBSCRIBED_TO_CHANNELS.format(subscribe))
+        ws.send(subscribe)
 
-    def on_open(self) -> None:
-        if self.market_type == "spot" or self.market_type == "futures":
-            subscribe = json.dumps(
-                {"op": "subscribe", "channel": "ticker", "market": self.pair.upper()}
-            )
-            logger.info(SUBSCRIBED_TO_CHANNELS.format(subscribe))
-
-            self._ws.send(subscribe)
-        else:
-            raise RuntimeError(UNKNOWN_MARKET_TYPE.format(self.market_type))
-
-    def on_message(self, message: str) -> None:
+    def on_message(self, ws: websocket.WebSocket, message: str) -> None:
         if self.buffer is None:
             self.buffer = json.loads(message)
 
             if len(self.buffer) > 0:
-                if "type" in message:
-                    type = self.message.get("type")
-                    pair = self.message.get("market").lower()
+                if "type" in self.buffer:
+                    type = self.buffer.get("type")
+                    pair = self.buffer.get("market").lower()
 
                     if type == "subscribed":
                         logger.info(CONTRACT_SUBSCRIPTION_STATUS.format(type, pair))
-                        self.channels[pair] = {"status": type}
+                        self.channel = {"status": type}
+                        self.buffer = None
                     elif type == "update":
                         logger.debug(SNAPSHOT_MESSAGE.format(message))
 
@@ -91,17 +97,15 @@ class TickerFtxCryptoAction(ABC):
                 raise Exception("no message.")
         else:
             raise Exception("Message buffer not empty.")
+        pass
 
-    def on_error(self, e) -> None:
-        logger.error(WEBSOCKET_ERROR.format(repr(e)))
+    def on_error(self, ws: websocket.WebSocket, error: Any) -> None:
+        logger.error(WEBSOCKET_ERROR.format(repr(error)))
 
-        self.executor.cancel()
+        ws.close()
 
-    def on_close(self) -> None:
-        if self.executor.busy:
-            self.executor.cancel()
-
-            logger.info(WEBSOCKET_CLOSED)
+    def on_close(self, ws: websocket.WebSocket) -> None:
+        ws.close()
 
     def get_ticker(self) -> bool:
         try:
@@ -128,10 +132,22 @@ class TickerFtxCryptoAction(ABC):
 
             return False
 
-    @abstractmethod
-    def start(self):
-        try:
-            self.executor.try_run_async(TICKER_ACTION, self._ws.run_forever)
-        except Exception or RuntimeError as e:
-            logger.exception(e)
-            return e
+    # def stop(self):
+    #     if self._thread and self._thread.is_alive:
+    #         self._ws.close()
+    #         self._thread.join()
+    #         logger.debug(WEBSOCKET_STOPPED)
+
+    # def run(self):
+    #     asyncio.set_event_loop(self._loop)
+    #     self._loop.run_forever()
+
+    # def start(self) -> int:
+    #     try:
+    #         self._thread = Thread(target=self._ws.run_forever)
+    #         self._thread.start()
+    #         return self._thread.ident
+    #         self._executor.run_async(func=self._ws.run_forever)
+    #     except Exception or RuntimeError as e:
+    #         logger.exception(e)
+    #         return e

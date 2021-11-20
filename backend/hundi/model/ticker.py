@@ -2,7 +2,7 @@ from hundi.config.ticker import TICKER_SLOTS
 
 
 class TickerFutures(object):
-    __slots__ = TICKER_SLOTS['FUTURES']
+    __slots__ = TICKER_SLOTS['futures']
 
     def __init__(self, timestamp, bid, ask, bid_size, ask_size, volume):
         self.timestamp = timestamp
@@ -17,7 +17,7 @@ class TickerFutures(object):
 
 
 class TickerSpot(object):
-    __slots__ = TICKER_SLOTS['SPOT']
+    __slots__ = TICKER_SLOTS['spot']
 
     def __init__(self, timestamp, open, high, low, close, volume=None):
         self.timestamp = timestamp

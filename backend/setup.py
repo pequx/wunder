@@ -6,9 +6,15 @@ from setuptools import Command, find_packages, setup
 from setuptools.dist import Distribution
 
 from hundi.meta import __version__, __name__, __url__, __author__, __email__, __license__, __classifiers__
-from hundi.config.settings import EXTRAS_REQUIRE, COVERAGE_XML, COVERAGE_HTML, CONSOLE_SCRIPTS
+ą
+__location__ = os.path.join(
+    os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe()))
+)
 
-__location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe())))
+EXTRAS_REQUIRE = {"kuberentes": []}
+COVERAGE_XML = True
+COVERAGE_HTML = False
+CONSOLE_SCRIPTS = ["huni = hundi"]
 
 
 class SetupFlake8(Command):
@@ -122,7 +128,7 @@ def get_install_requirements(path: str) -> Any:
 def setup_package(version: str) -> None:
     cmdclass = {'flake8': SetupFlake8, 'test': SetupPyTest}
 
-    install = []
+    install_requires = []
     for r in read('requirements.txt').split('\n'):
         r = r.strip()
         if r == '':
@@ -138,7 +144,7 @@ def setup_package(version: str) -> None:
             if extra:
                 break
         if not extra:
-            install.append(r)
+            install_requires.append(r)
 
     command_options = {'test': {}}
     if COVERAGE_XML:
@@ -157,23 +163,23 @@ def setup_package(version: str) -> None:
         packages=find_packages(exclude=["test", "test.*", "tests", "tests.*"]),
         package_data={__name__: ["*.json"]},
         include_package_data=True,
-        install_requires=install,
+        install_requires=install_requires,
         extras_require=EXTRAS_REQUIRE,
         setup_requires='flake8',
         cmdclass=cmdclass,
         command_options=command_options,
-        python_requires=">=3.10",
+        python_requires=">=3.9.9",
         entry_points={"console_scripts": CONSOLE_SCRIPTS}
     )
 
 
 if __name__ == "__main__":
     old_modules = sys.modules.copy()
-
+    print("ja")
     sys.modules.clear()
     sys.modules.update(old_modules)
 
-    if all(map(lambda i, j: i < j, sys.version_info, (3, 10, 0))):
-        raise Exception('Patroni needs to be run with Python 3.10+')
+    if all(map(lambda i, j: i < j, sys.version_info, (3, 9, 9))):
+        raise Exception('Patroni needs to be run with Python 3.9.9+')
 
     setup_package(__version__)

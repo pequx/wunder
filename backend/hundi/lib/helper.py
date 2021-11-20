@@ -1,6 +1,7 @@
 import time
 
 from datetime import datetime, timezone
+from typing import List
 
 from hundi.config.message import UNKNOWN_MARKET_TYPE
 from hundi.config.settings import ENVIRONMENT
@@ -13,15 +14,15 @@ from hundi.config.market import (
 )
 
 
-def get_timestamp(type):
+def get_timestamp() -> float:
     return datetime.now(timezone.utc).timestamp()
 
 
-def get_pairs(pairs):
+def get_pairs(pairs: str) -> List[str]:
     return pairs.upper().split(",")
 
 
-def get_exchanges_names(exchanges="", type="spot"):
+def get_exchanges_names(exchanges: str, type: str = "spot") -> List[str]:
     n = []
     for exchange in exchanges.split(",", 1):
         e = exchange.lower()
@@ -35,7 +36,7 @@ def get_exchanges_names(exchanges="", type="spot"):
     return n
 
 
-def get_exchange_url(exchange="", type="spot"):
+def get_exchange_url(exchange: str, type: str = "spot") -> str:
     e = exchange.lower()
     t = type.upper()
     if e == "kraken":

@@ -3,17 +3,16 @@ import logging
 from abc import ABC, abstractmethod
 from queue import Queue
 
-from lib import helper
-from lib.kairosdb.ticker import TickerKairosDbLib
-from hundi.config.message import (TICKERS_WRITTEN_COUNT)
+from hundi.lib.kairosdb.ticker import TickerKairosDbLib
+from hundi.config.message import TICKERS_WRITTEN_COUNT
 from hundi.config.ticker import TICKERS_BUFFER_SIZE
-from model.ticker import TickerFutures, TickerSpot
+from hundi.model.ticker import TickerFutures, TickerSpot
 from hundi.config.settings import ENVIRONMENT
 
 logger = logging.getLogger(__name__)
 
 
-class KairosDBTickerWriter(ABC):
+class KairosDBTickerWriter(object):
     def __init__(self, db: TickerKairosDbLib) -> None:
         self.queue = Queue(maxsize=TICKERS_BUFFER_SIZE)
         self.count = {
@@ -23,7 +22,6 @@ class KairosDBTickerWriter(ABC):
         self.source = "{}.hundi.writer.ticker".format(ENVIRONMENT)
         self.db = db
 
-    @abstractmethod
     def write(self, path: str, ticker: TickerSpot or TickerFutures) -> bool:
         try:
             self.queue.put(ticker)

@@ -4,6 +4,7 @@ from hundi.action import health, observer
 from hundi.action.crypto.ftx.ticker import TickerFtxCryptoAction
 from hundi.config.ticker import TICKER_ACTION
 from hundi.lib import bootstrap
+from hundi.lib.executor import ExecutorLib as Executor
 import logging
 import sys
 import click
@@ -34,12 +35,15 @@ def observe(log_level, filter):
 
 
 @cli.command(TICKER_ACTION)
-@click.option("--market_type")
-@click.option("--pair")
+@click.option("--market_type", default="spot")
+@click.option("--pair", default="abnb-1231")
 def ticker_ftx_crypto_action(market_type: str, pair: str):
-    action = TickerFtxCryptoAction(market_type, pair)
-    action.start()
-    click.echo("Action: {} executed.".format(TICKER_ACTION))
+    try:
+        executor = Executor()
+        action = TickerFtxCryptoAction(market_type, pair)
+        executor.try_run_async(TICKER_ACTION, action._ws.run_forever)
+    except KeyboardInterrupt:
+        executor.cancel()
 
 
 def main():

@@ -4,7 +4,7 @@ import json
 
 from hundi.config.settings import DEVELOPMENT
 from hundi.config.message import HEALTH_CHECK, HEALTH_CHECK_RESULT
-from lib import helper
+from hundi.lib import helper
 
 logger = logging.getLogger(__name__)
 
