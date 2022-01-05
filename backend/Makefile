@@ -26,8 +26,8 @@ hundi-install:
 # 	rm -r venv
 
 hundi-vscode-bootstrap:
-	cp .vscode.settings.json ../.vscode/settings.json
-	cp .vscode.launch.json ../.vscode/launch.json
+	cp vscode.settings.json ../.vscode/settings.json
+	cp vscode.launch.json ../.vscode/launch.json
 
 hundi-debug:
 	venv/bin/python3.9 -m debugpy --listen 5678 --wait-for-client $(file) $(args)

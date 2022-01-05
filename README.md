@@ -153,7 +153,12 @@ Please refer to Makefile for more commands.
 
 ## Debugging
 
-Please use the make command as follows:
+Please use the make command for debbuging outside of the Docker:
 ```
 $ make hundi-debug file=<file> args=<args>
+```
+
+Alternatively you may want to use debbuger attach configuration to a running container. In order to debug given command please type the following after entering the container:
+```
+$ python /home/app/.local/lib/python3.9/site-packages/debugpy --wait-for-client --listen 0.0.0.0:5678 <file> <args>
 ```
